@@ -1,0 +1,166 @@
+{
+	"dns": {
+    "servers": [
+      "https+local://1.1.1.1/dns-query",
+	  {
+        "address": "https://1.1.1.1/dns-query",
+        "domains": [
+          "geosite:cn"
+        ],
+        "skipFallback": true,
+        "queryStrategy": "UseIPv4"
+      },
+	  "2606:4700:4700::1111",
+	  "2606:4700:4700::1001",
+      "localhost"
+    ],
+    "queryStrategy": "UseIP",
+    "disableCache": false,
+    "disableFallback": false,
+    "disableFallbackIfMatch": true,
+    "tag": "dns_inbound"
+	},
+    "routing": {
+        "domainStrategy": "IPOnDemand",
+        "rules": [
+            {
+                "type": "field",
+                "ip": [
+                    "geoip:private"
+                ],
+                "outboundTag": "block"
+            },
+			{
+				"type": "field",
+				"ip": ["geoip:google"],
+				"outboundTag": "direct"
+			},
+			{
+				"type": "field",
+				"domain": [
+					"geosite:google", "domain:recaptcha.net", "domain:iesnare.com"
+				],
+				"outboundTag": "direct"
+			},
+			{
+				"type": "field",
+				"domain": [
+					"geosite:category-ads-all"
+				],
+				"outboundTag": "block"
+			}
+        ]
+    },
+    "inbounds": [
+        {
+            "listen": "@@xhttp",
+            "protocol": "vless",
+            "settings": {
+                "decryption": "none",
+                "clients": [
+                    {
+                        "id": "239f319c-787c-45fa-aa9e-cafc7c290fed",
+						"level": 0
+                    },
+					{
+						"id": "e9967f46-86b3-462e-bcf9-95bfe8eb7376",
+						"level": 1
+					}
+                ]
+            },
+            "streamSettings": {
+                "network": "xhttp",
+                "xhttpSettings": {
+                    "path": "/universal_2026989_xijinpingganjinsi",
+					"noSSEHeader": true ,
+					"scStreamUpServerSecs": -1
+                }
+            },
+            "sniffing": {
+                "enabled": true,
+                "destOverride": [
+                    "http",
+                    "tls",
+                    "quic"
+                ],
+				"routeOnly": true
+            }
+        },
+        {
+            "listen": "0.0.0.0",
+            "port": 443,
+            "protocol": "vless",
+            "settings": {
+                "decryption": "none",
+                "fallbacks": [
+                    {
+                        "dest": "@@xhttp"
+                    }
+                ]
+            },
+            "streamSettings": {
+                "network": "raw",
+                "security": "reality",
+                "realitySettings": {
+					"show": false,
+                    "dest": "careers.playstation.com:443",
+                    "xver": 0, 
+                    "serverNames": [
+                        "www.playstation.com",
+                        "careers.playstation.com"
+                    ],
+                    "privateKey": "iICrdlUnfzFe0UT0DCi0rFffDBck25hlcSiat0dzD2s",
+                    "shortIds": [
+                        "b6f0231977c2672d"
+                    ]
+                }
+            }
+        }
+    ],
+    "outbounds": [
+        {
+            "protocol": "freedom",
+            "tag": "direct",
+			"settings": {}
+        },
+		{
+		 "protocol": "dns",
+		 "tag": "dns_inbound",
+		 "settings": {}
+		},
+        {
+            "protocol": "blackhole",
+            "tag": "block"
+        }
+    ],
+	"policy": {
+    "levels": {
+      "0": {
+        "handshake": 6,
+        "connIdle": 720,
+        "uplinkOnly": 1,
+        "downlinkOnly": 2,
+        "statsUserUplink": false,
+        "statsUserDownlink": false,
+        "statsUserOnline": false,
+        "bufferSize": 12
+      },
+	  "1": {
+        "handshake": 4,
+        "connIdle": 360,
+        "uplinkOnly": 1,
+        "downlinkOnly": 2,
+        "statsUserUplink": false,
+        "statsUserDownlink": false,
+        "statsUserOnline": false,
+        "bufferSize": 8
+      }
+    },
+    "system": {
+      "statsInboundUplink": false,
+      "statsInboundDownlink": false,
+      "statsOutboundUplink": false,
+      "statsOutboundDownlink": false
+    }
+  }
+}
